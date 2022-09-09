@@ -84,21 +84,25 @@ class GestureClassify(ModuleBase):
                 print('Done!')
                 break
 
-    def image_demo(self, path, out_root=None, is_show=False):
+    def image_demo(self, path, out_root=None, is_show=False, is_save=False):
         if out_root and not os.path.exists(out_root):
             os.makedirs(out_root)
-        out = self.single_image(path)
-        if out is not None:
-            (objs, categorys), frame = out
-            if len(objs) < 1:
-                return None
-            # 可视化结果
-            frame = self._visual(frame, objs=objs, categorys=categorys)
-        else:
+        frame = cv2.imread(path)
+        out = self._single_frame(frame[:, :, ::-1], is_save)
+        if out is None:
             return None
+        objs, categorys = out
+        if len(objs) < 1:
+            return None
+        if is_save:
+            for i, im in enumerate(categorys):
+                class_name = self.idx2classes[im[0]]
+                if not os.path.exists(os.path.join(out_root, class_name)):
+                    os.makedirs(os.path.join(out_root, class_name))
+                cv2.imwrite(os.path.join(out_root, class_name, "%d_%03d_%s.jpg" % (
+                    im[0], i, os.path.basename(path).split(".")[0])), im[1])
+        # 可视化结果
         if is_show:
+            frame = self._visual(frame, objs=objs, categorys=categorys)
             cv2.imshow("demo", frame)
-            cv2.waitkey(5000)
-
-        if out_root:
-            cv2.imwrite(os.path.join(out_root, os.path.basename(path)), frame)
+            cv2.waitKey(2000)
