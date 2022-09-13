@@ -1,7 +1,7 @@
 import requests
 import json
 
-url = 'http://192.168.31.197:9777/generate_anno'
+url = 'http://localhost:9777/generate_anno'
 post_data = {
     'algo_type': "smoking_calling",
     'video_paths': [],

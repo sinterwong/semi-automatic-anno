@@ -1,6 +1,8 @@
 import os
+import numpy as np
 import cv2
 from inference import DetectorYolov5, Classifier
+import urllib
 from .base import ModuleBase
 
 
@@ -87,7 +89,15 @@ class GestureClassify(ModuleBase):
     def image_demo(self, path, out_root=None, is_show=False, is_save=False):
         if out_root and not os.path.exists(out_root):
             os.makedirs(out_root)
-        frame = cv2.imread(path)
+        if path.split(":")[0] in ["http", "https"]:
+            with urllib.request.urlopen(path) as url:
+                resp = url.read()
+                frame = np.asarray(bytearray(resp), dtype="uint8")
+                frame = cv2.imdecode(frame, cv2.IMREAD_COLOR)
+        else:
+            frame = cv2.imread(path)
+        if not isinstance(frame, np.ndarray):
+            return None
         out = self._single_frame(frame[:, :, ::-1], is_save)
         if out is None:
             return None
