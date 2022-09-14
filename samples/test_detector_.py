@@ -1,4 +1,4 @@
-from inference import DetectorYolov5
+from inference import DetectorYolov5, DetectorYolox, DetectorLcNet
 import glob
 import cv2
 from tqdm import tqdm
@@ -20,46 +20,52 @@ def main():
         os.makedirs(out_root)
 
     # init model
-    if not opt.type in ['yolo']:
-        raise Exception("Unsupported type {}".format(opt.type))
-
-    if opt.type == 'yolo':
+    if opt.type == 'yolov5':
         detector = DetectorYolov5(opt.model_path, input_size=opt.input_size,
                                   conf_thres=opt.conf_thres, iou_thres=opt.iou_thres)
+    elif opt.type == "yolox":
+        detector = DetectorYolox(opt.model_path, input_size=opt.input_size,
+                                  conf_thres=opt.conf_thres, iou_thres=opt.iou_thres)
+    elif opt.type == "lcnet":
+        detector = DetectorLcNet(opt.model_path, input_size=opt.input_size,
+                                  conf_thres=opt.conf_thres, iou_thres=opt.iou_thres)
+    else:
+        raise Exception("Unsupported type {}".format(opt.type))
+        
 
-    img = cv2.imread(opt.im_path)[:, :, ::-1]
-    show_img = img[:, :, ::-1].copy()
+    for i in range(1):
+        img = cv2.imread(opt.im_path)[:, :, ::-1]
+        show_img = img[:, :, ::-1].copy()
 
-    # inference
-    out = detector.forward(img)
+        # inference
+        out = detector.forward(img)
 
-    for i, dr in enumerate(out):
-        cv2.rectangle(show_img, (dr[0], dr[1]), (dr[2], dr[3]), 255, 2, 1)
-        if opt.crop_obj:
-            crop_img = img[dr[1]: dr[3], dr[0]: dr[2], :]
-            if not os.path.exists(os.path.join(out_root, "crop_res", coco_idx2classes[dr[5]])):
-                os.makedirs(os.path.join(
-                    out_root, "crop_res", coco_idx2classes[dr[5]]))
-            p = os.path.join(out_root, "crop_res",
-                             coco_idx2classes[dr[5]], "%03d.jpg" % i)
-            cv2.imwrite(p, crop_img[:, :, ::-1])
-    cv2.imwrite(os.path.join(
-        out_root, os.path.basename(opt.im_path)), show_img)
+        for i, dr in enumerate(out):
+            cv2.rectangle(show_img, (dr[0], dr[1]), (dr[2], dr[3]), 255, 2, 1)
+            if opt.crop_obj:
+                crop_img = img[dr[1]: dr[3], dr[0]: dr[2], :]
+                if not os.path.exists(os.path.join(out_root, "crop_res", coco_idx2classes[dr[5]])):
+                    os.makedirs(os.path.join(
+                        out_root, "crop_res", coco_idx2classes[dr[5]]))
+                p = os.path.join(out_root, "crop_res",
+                                coco_idx2classes[dr[5]], "%03d.jpg" % i)
+                cv2.imwrite(p, crop_img[:, :, ::-1])
+        cv2.imwrite(os.path.join(
+            out_root, os.path.basename(opt.im_path)), show_img)
 
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--model_path", type=str,
-                        default="weights/yolov5s.onnx", help="onnx model path")
+                        default="models/hand_lcnet_yolox.onnx", help="onnx model path")
     parser.add_argument("--input_size", type=tuple,
-                        default=(640, 640), help="input size")
+                        default=(800, 480), help="input size")
     parser.add_argument("--conf_thres", type=float,
                         default=0.2, help="Confidence threshold")
     parser.add_argument("--iou_thres", type=float,
                         default=0.45, help="IOU threshold")
-    # parser.add_argument("--model_path", type=str, default="weights/pose_coco/lpn_50_256x192.onnx", help="onnx model path")
-    parser.add_argument("--type", type=str, default="yolo",
-                        help="Currently supports ['yolo'], they difference is post-processing")
+    parser.add_argument("--type", type=str, default="lcnet",
+                        help="Currently supports ['yolox', 'yolov5', 'lcnet'], they difference is post-processing")
     parser.add_argument("--crop_obj", action='store_true',
                         help="Save the detected object")
     parser.add_argument("--im_path", type=str,

@@ -53,7 +53,7 @@ class ONNXBase(metaclass=abc.ABCMeta):
             input_feed[name] = image_numpy
         return input_feed
 
-    def preprocessing(self, image, aspect_ratio=True, alpha=255.0, beta=0.0):
+    def preprocessing(self, image, aspect_ratio=True, alpha=0.0, beta=0.0):
         rh, rw = None, None
         h, w, _ = image.shape
         if aspect_ratio:

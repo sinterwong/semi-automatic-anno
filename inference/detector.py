@@ -6,11 +6,10 @@ from .base import ONNXBase
 
 
 class Detector(ONNXBase):
-    def __init__(self, weights, input_size=(640, 640), conf_thres=0.2, iou_thres=0.45, classes=0):
+    def __init__(self, weights, input_size=(640, 640), conf_thres=0.2, iou_thres=0.45):
         super().__init__(weights, input_size)
         self.conf_thres = conf_thres
         self.iou_thres = iou_thres
-        self.classes = classes
 
     def xywh2xyxy(self, x, padw=32, padh=32):
         # Convert nx4 boxes from [x, y, w, h] normalized to [x1, y1, x2, y2] where xy1=top-left, xy2=bottom-right
@@ -52,7 +51,7 @@ class Detector(ONNXBase):
             order = order[inds + 1]
         return np.array(keep_index, dtype=np.int32)
 
-    def non_max_suppression(self, prediction, conf_thres=0.2, iou_thres=0.45, classes=None, agnostic=False, labels=()):
+    def non_max_suppression(self, prediction, conf_thres=0.2, iou_thres=0.45, convert=True, agnostic=False, labels=()):
         """Performs Non-Maximum Suppression (NMS) on inference results
 
         Returns:
@@ -71,8 +70,11 @@ class Detector(ONNXBase):
             if not x.shape[0]:
                 continue
             x[:, 5:] *= x[:, 4:5]
-
-            box = self.xywh2xyxy(x[:, :4])
+            
+            if convert:
+                box = self.xywh2xyxy(x[:, :4])
+            else:
+                box = x[:, :4]
 
             if multi_label:
                 i, j = (x[:, 5:] > conf_thres).nonzero()
