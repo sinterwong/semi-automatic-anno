@@ -40,9 +40,9 @@ def decode_video():
             count = 0
             while rval:
                 count += 1
+                rval, frame = cap.read()
                 if count % interval != 0:
                     continue
-                rval, frame = cap.read()
                 if frame is not None:
                     name = str(uuid.uuid1()) + ".jpg"
                     cv2.imwrite(os.path.join(p_out_root, name), frame)
