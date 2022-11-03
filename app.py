@@ -7,10 +7,10 @@ import os
 from gevent import pywsgi
 from params import smoking_calling_gesture_params
 from module import GestureClassify
+import threading
 
 app = Flask(__name__)
 app.secret_key = "sinter"
-app.debug = True
 
 
 def collect_frame(p, out_root, interval, times):
@@ -37,8 +37,10 @@ def collect_frame(p, out_root, interval, times):
             times -= 1
     return 1
 
+
 @app.route("/decode_video", methods=["POST"])
 def decode_video():
+    # print(threading.current_thread().name)
     result = {
         "status": 200,
         "msg": "video decode was done!"
@@ -55,7 +57,8 @@ def decode_video():
     if video_paths:
         complete_count = 0
         executor = ThreadPoolExecutor(max_workers=8)
-        all_task = [executor.submit(collect_frame, p, out_root, interval, times) for p in video_paths]
+        all_task = [executor.submit(
+            collect_frame, p, out_root, interval, times) for p in video_paths]
 
         for future in as_completed(all_task):
             complete_count += future.result()
@@ -69,6 +72,7 @@ def decode_video():
 
 @app.route("/generate_anno", methods=["POST"])
 def generate_anno():
+    
     algo_type = request.json.get("algo_type")
     video_paths = request.json.get("video_paths")
     image_paths = request.json.get("image_paths")
@@ -100,7 +104,7 @@ if __name__ == "__main__":
     module_managers = {
         "smoking_calling": GestureClassify(smoking_calling_gesture_params)
     }
-    # app.run(host="192.168.31.227", port=9777, debug=True)
+    app.run(host="0.0.0.0", port=19777, debug=False, threaded=True)
 
-    server = pywsgi.WSGIServer(('0.0.0.0', 9777), app)
-    server.serve_forever()
+    # server = pywsgi.WSGIServer(('0.0.0.0', 19777), app)
+    # server.serve_forever()
