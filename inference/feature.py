@@ -29,7 +29,7 @@ class Feature(ONNXBase):
             0]  # 1x512
         # forward_end = cv2.getTickCount()
         # print("推理耗时：{}s".format((forward_end - forward_start) / cv2.getTickFrequency()))
-        return out
+        return out[0]
 
 
 if __name__ == "__main__":

@@ -3,7 +3,6 @@ import cv2
 from inference import DetectorYolov5, Feature
 from tracker import DeepSort
 import numpy as np
-import time
 from .base import ModuleBase
 
 
@@ -62,7 +61,8 @@ class ObjectCounter(ModuleBase):
 
         # 对检测的结果进行特征提取
         for _, dr in enumerate(out):
-            croped_image = img[dr[1]: dr[3], dr[0]: dr[2], :][:, :, ::-1]
+            croped_image = img[int(dr[1]): int(dr[3]), int(
+                dr[0]): int(dr[2]), :][:, :, ::-1]
             if croped_image.shape[0] < 10 or croped_image.shape[1] < 10:
                 continue
             feature = self._extractor.forward(croped_image)
@@ -72,14 +72,23 @@ class ObjectCounter(ModuleBase):
         outputs = self._deepSort.update(bboxes, features, img)
         return outputs
 
-    def _visual(self, frame, objs, categorys, thickness=1):
-        if objs:
-            for i, dr in enumerate(objs):
-                cv2.rectangle(frame, (dr[0], dr[1]),
-                              (dr[2], dr[3]), (0, 0, 255), 3, 1)
-                cv2.putText(frame, self.idx2classes[categorys[i]], (
-                    dr[0], dr[1] + (dr[3] - dr[1]) // 2), cv2.FONT_HERSHEY_COMPLEX, thickness, (0, 0, 255), 1)
-        return frame
+    def _visual(self, frame, objs, thickness=1):
+        offset = (0, 0)
+        for i, box in enumerate(objs):
+            x1, y1, x2, y2, idx = [int(i) for i in box]
+            x1 += offset[0]
+            x2 += offset[0]
+            y1 += offset[1]
+            y2 += offset[1]
+            # box text and bar
+            color = compute_color_for_labels(idx)
+            label = '{}{:d}'.format("", idx)
+            t_size = cv2.getTextSize(label, cv2.FONT_HERSHEY_PLAIN, 2, 2)[0]
+            cv2.rectangle(frame, (x1, y1), (x2, y2), color, 3)
+            cv2.rectangle(
+                frame, (x1, y1), (x1+t_size[0]+3, y1+t_size[1]+4), color, -1)
+            cv2.putText(
+                frame, label, (x1, y1+t_size[1]+4), cv2.FONT_HERSHEY_PLAIN, 2, [255, 255, 255], 2)
 
     def video_demo(self, video_file, out_root=None, is_show=False):
         if out_root and not os.path.exists(out_root):
@@ -101,7 +110,6 @@ class ObjectCounter(ModuleBase):
             except StopIteration as e:
                 print('Done!')
                 break
-
             if run_count % 3 != 0:
                 outputs = last_out
             # 获取检测和关键点推理的结果
@@ -109,13 +117,11 @@ class ObjectCounter(ModuleBase):
             last_out = outputs
 
             if len(outputs) > 0:
-                bbox_xyxy = outputs[:, :4]
-                identities = outputs[:, -1]
-                frame = draw_boxes(frame, bbox_xyxy, identities)  # BGR
+                self._visual(frame, outputs)  # BGR
 
                 # add FPS information on output video
                 text_scale = max(1, frame.shape[1] // 1600)
-                cv2.putText(frame, 'frame: %d fps: %.2f ' % (run_count, len(avg_fps) / sum(avg_fps)),
+                cv2.putText(frame, 'frame: %d' % (run_count),
                             (20, 20 + text_scale), cv2.FONT_HERSHEY_PLAIN, text_scale, (0, 0, 255), thickness=2)
 
             # 可视化结果

@@ -1,4 +1,3 @@
-from inference import Feature
 import numpy as np
 import scipy
 from scipy.optimize import linear_sum_assignment as linear_assignment
@@ -29,8 +28,8 @@ class DeepSort(object):
         # each Detection obj maintain the location(bbox_tlwh), confidence(conf), and appearance feature
         boxes, scores = [], []
         for bbox in bboxes:
-            boxes.append([bbox[0], bbox[1], bbox[0] +
-                         bbox[2], bbox[1] + bbox[3]])
+            boxes.append([bbox[0], bbox[1], bbox[2] -
+                         bbox[0], bbox[3] - bbox[1]])
             scores.append(bbox[4])
 
         detections = [Detection(boxes[i], scores[i], features[i])
@@ -53,10 +52,43 @@ class DeepSort(object):
             box = track.to_tlwh()       # (xc,yc,a,h) to (x1,y1,w,h)
             x1, y1, x2, y2 = self._tlwh_to_xyxy(box)
             track_id = track.track_id
-            outputs.append(np.array([x1, y1, x2, y2, track_id], dtype=np.int))
+            outputs.append(
+                np.array([x1, y1, x2, y2, track_id], dtype=np.int32))
         if len(outputs) > 0:
             outputs = np.stack(outputs, axis=0)  # (#obj, 5) (x1,y1,x2,y2,ID)
         return outputs
+
+    @staticmethod
+    def _xywh_to_tlwh(bbox_xywh):
+        bbox_tlwh = bbox_xywh.copy()
+        bbox_tlwh[:, 0] = bbox_xywh[:, 0] - bbox_xywh[:, 2]/2.
+        bbox_tlwh[:, 1] = bbox_xywh[:, 1] - bbox_xywh[:, 3]/2.
+        return bbox_tlwh
+
+    def _xywh_to_xyxy(self, bbox_xywh):
+        x, y, w, h = bbox_xywh
+        x1 = max(int(x-w/2), 0)
+        x2 = min(int(x+w/2), self.width-1)
+        y1 = max(int(y-h/2), 0)
+        y2 = min(int(y+h/2), self.height-1)
+        return x1, y1, x2, y2
+
+    def _tlwh_to_xyxy(self, bbox_tlwh):
+        x, y, w, h = bbox_tlwh
+        x1 = max(int(x), 0)
+        x2 = min(int(x+w), self.width-1)
+        y1 = max(int(y), 0)
+        y2 = min(int(y+h), self.height-1)
+        return x1, y1, x2, y2
+
+    def _xyxy_to_tlwh(self, bbox_xyxy):
+        x1, y1, x2, y2 = bbox_xyxy
+
+        t = x1
+        l = y1
+        w = int(x2-x1)
+        h = int(y2-y1)
+        return t, l, w,
 
 
 class TrackState(object):
@@ -748,7 +780,7 @@ class Detection(object):
     """
 
     def __init__(self, tlwh, confidence, feature):
-        self.tlwh = np.asarray(tlwh, dtype=np.float)    # x1, y1, w, h
+        self.tlwh = np.asarray(tlwh)    # x1, y1, w, h
         self.confidence = float(confidence)
         self.feature = np.asarray(feature, dtype=np.float32)
 

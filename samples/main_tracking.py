@@ -1,5 +1,5 @@
 import sys
-sys.path.append("/home/wangxt/workspace/projects/pyonnx-example")
+sys.path.append("C:/Users/Sinter/Workspace/Projects/semi-automatic-anno")
 from module import ObjectCounter
 import os
 import argparse
@@ -30,7 +30,7 @@ def main():
 
     if opt.video_path:
         gesture.video_demo(opt.video_path, opt.out_root,
-                           is_show=False)
+                           is_show=True)
 
 
 if __name__ == "__main__":

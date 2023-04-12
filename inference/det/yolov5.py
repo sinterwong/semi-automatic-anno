@@ -43,4 +43,4 @@ class DetectorYolov5(Detector):
         out[out[:, 1] < 0] = 0
         out[out[:, 2] < 0] = 0
         out[out[:, 3] < 0] = 0
-        return out.astype(np.int32)
+        return out
