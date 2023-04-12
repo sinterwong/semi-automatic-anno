@@ -4,14 +4,12 @@ from scipy.optimize import linear_sum_assignment as linear_assignment
 
 
 class DeepSort(object):
-    def __init__(self, max_dist=0.2, min_confidence=0.3, nms_max_overlaps=1, max_iou_distance=0.7, max_age=70, n_init=3, nn_budget=100):
+    def __init__(self, max_dist=0.2, min_confidence=0.3, max_iou_distance=0.7, max_age=70, n_init=3, nn_budget=100):
         self.min_confidence = min_confidence
-        self.nms_max_overlap = nms_max_overlaps
-
-        max_cosine_distance = max_dist
-        nn_budget = 100
+        self.nn_budget = nn_budget
+        self.max_dist = max_dist
         metric = NearestNeighborDistanceMetric(
-            "cosine", max_cosine_distance, nn_budget)
+            "cosine", self.max_dist, self.nn_budget)
 
         # tracker maintain a list contains(self.tracks) for each Track object
         self.tracker = Tracker(

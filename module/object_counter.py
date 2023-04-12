@@ -48,6 +48,8 @@ class ObjectCounter(ModuleBase):
 
         # deepsort tracker
         self._deepSort = DeepSort()
+        
+        self.attention_cls = params["attention_cls"]
 
     def _single_frame(self, img):
         """
@@ -61,13 +63,14 @@ class ObjectCounter(ModuleBase):
 
         # 对检测的结果进行特征提取
         for _, dr in enumerate(out):
-            croped_image = img[int(dr[1]): int(dr[3]), int(
-                dr[0]): int(dr[2]), :][:, :, ::-1]
-            if croped_image.shape[0] < 10 or croped_image.shape[1] < 10:
-                continue
-            feature = self._extractor.forward(croped_image)
-            bboxes.append(dr)
-            features.append(feature)
+            if dr[5] in self.attention_cls:
+                croped_image = img[int(dr[1]): int(dr[3]), int(
+                    dr[0]): int(dr[2]), :][:, :, ::-1]
+                if croped_image.shape[0] < 10 or croped_image.shape[1] < 10:
+                    continue
+                feature = self._extractor.forward(croped_image)
+                bboxes.append(dr)
+                features.append(feature)
         # ****************************** deepsort ****************************
         outputs = self._deepSort.update(bboxes, features, img)
         return outputs
@@ -112,11 +115,12 @@ class ObjectCounter(ModuleBase):
                 break
             if run_count % 3 != 0:
                 outputs = last_out
-            # 获取检测和关键点推理的结果
-            outputs = self._single_frame(frame[:, :, ::-1])
-            last_out = outputs
+            else:
+                # 获取检测和关键点推理的结果
+                outputs = self._single_frame(frame[:, :, ::-1])
+                last_out = outputs
 
-            if len(outputs) > 0:
+            if outputs is not None and len(outputs) > 0:
                 self._visual(frame, outputs)  # BGR
 
                 # add FPS information on output video
