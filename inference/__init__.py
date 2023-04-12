@@ -1,5 +1,6 @@
 from .detector import Detector
 from .classifier import Classifier
+from .feature import Feature
 from .det.yolov5 import DetectorYolov5
 from .det.yolox import DetectorYolox
 from .det.lcnet_yolox import DetectorLcNet

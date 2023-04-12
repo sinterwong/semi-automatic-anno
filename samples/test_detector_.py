@@ -1,3 +1,5 @@
+import sys
+sys.path.append("/home/wangxt/workspace/projects/pyonnx-example")
 from inference import DetectorYolov5, DetectorYolox, DetectorLcNet
 import glob
 import cv2
@@ -25,13 +27,12 @@ def main():
                                   conf_thres=opt.conf_thres, iou_thres=opt.iou_thres)
     elif opt.type == "yolox":
         detector = DetectorYolox(opt.model_path, input_size=opt.input_size,
-                                  conf_thres=opt.conf_thres, iou_thres=opt.iou_thres)
+                                 conf_thres=opt.conf_thres, iou_thres=opt.iou_thres)
     elif opt.type == "lcnet":
         detector = DetectorLcNet(opt.model_path, input_size=opt.input_size,
-                                  conf_thres=opt.conf_thres, iou_thres=opt.iou_thres)
+                                 conf_thres=opt.conf_thres, iou_thres=opt.iou_thres)
     else:
         raise Exception("Unsupported type {}".format(opt.type))
-        
 
     for i in range(1):
         img = cv2.imread(opt.im_path)[:, :, ::-1]
@@ -48,7 +49,7 @@ def main():
                     os.makedirs(os.path.join(
                         out_root, "crop_res", coco_idx2classes[dr[5]]))
                 p = os.path.join(out_root, "crop_res",
-                                coco_idx2classes[dr[5]], "%03d.jpg" % i)
+                                 coco_idx2classes[dr[5]], "%03d.jpg" % i)
                 cv2.imwrite(p, crop_img[:, :, ::-1])
         cv2.imwrite(os.path.join(
             out_root, os.path.basename(opt.im_path)), show_img)
@@ -57,14 +58,14 @@ def main():
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--model_path", type=str,
-                        default="models/hand_lcnet_yolox.onnx", help="onnx model path")
+                        default="models/handdetn.onnx", help="onnx model path")
     parser.add_argument("--input_size", type=tuple,
-                        default=(800, 480), help="input size")
+                        default=(640, 640), help="input size")
     parser.add_argument("--conf_thres", type=float,
                         default=0.2, help="Confidence threshold")
     parser.add_argument("--iou_thres", type=float,
                         default=0.45, help="IOU threshold")
-    parser.add_argument("--type", type=str, default="lcnet",
+    parser.add_argument("--type", type=str, default="yolov5",
                         help="Currently supports ['yolox', 'yolov5', 'lcnet'], they difference is post-processing")
     parser.add_argument("--crop_obj", action='store_true',
                         help="Save the detected object")

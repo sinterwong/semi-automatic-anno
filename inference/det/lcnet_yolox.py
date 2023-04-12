@@ -37,7 +37,6 @@ class DetectorLcNet(Detector):
         out[:, 2] = out[:, 2] / rw
         out[:, 3] = out[:, 3] / rh
         
-        print(out)
         # post_end = cv2.getTickCount()
         # print("后处理耗时：{}s".format((post_end - post_start) / cv2.getTickFrequency()))
         out[out[:, 0] < 0] = 0
