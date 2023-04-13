@@ -37,19 +37,19 @@ def main():
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--det_model_path", type=str,
-                        default="models/best_person.onnx", help="det onnx model path")
+                        default="models/yolov5n.onnx", help="det onnx model path")
     parser.add_argument("--feature_model_path", type=str,
-                        default="models/osnet_x0_5_imagenet.onnx", help="feature onnx model path")
+                        default="models/osnet_ain_x1_0_imagenet.onnx", help="feature onnx model path")
     parser.add_argument("--det_input_size", type=tuple,
                         default=(640, 640), help="det input size")
     parser.add_argument("--feature_input_size", type=tuple,
                         default=(128, 256), help="feature input size")
-    parser.add_argument("--det_conf_thr", type=float, default=0.3,
+    parser.add_argument("--det_conf_thr", type=float, default=0.28,
                         help="Det threshold that needs to be displayed")
     parser.add_argument("--det_iou_thr", type=float,
                         default=0.4, help="Det threshold that iou")
     parser.add_argument("--video_path", type=str,
-                        default="data/run_c.mp4", help="video path")
+                        default="data/run_d.mp4", help="video path")
     parser.add_argument("--out_root", type=str,
                         default="data/main_result/tracking", help="result output folder")
     main()
