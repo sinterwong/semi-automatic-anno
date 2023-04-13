@@ -23,12 +23,12 @@ class DetectorYolov5(Detector):
         # pre_end = cv2.getTickCount()
         # print("前处理耗时：{}s".format((pre_end - pre_start) / cv2.getTickFrequency()))
 
-        forward_start = cv2.getTickCount()
+        # forward_start = cv2.getTickCount()
         input_feed = self._get_input_feed(self.input_name, data)
         pred = self.session.run(
             self.output_name, input_feed=input_feed)[0]
-        forward_end = cv2.getTickCount()
-        print("前传耗时：{}s".format((forward_end - forward_start) / cv2.getTickFrequency()))
+        # forward_end = cv2.getTickCount()
+        # print("前传耗时：{}s".format((forward_end - forward_start) / cv2.getTickFrequency()))
 
         # post_start = cv2.getTickCount()
         out = self.non_max_suppression(
