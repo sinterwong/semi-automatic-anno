@@ -1,8 +1,11 @@
 import os
+
 import cv2
+import numpy as np
+
 from inference import DetectorYolov5, Feature
 from tracker import DeepSort
-import numpy as np
+
 from .base import ModuleBase
 
 
@@ -96,10 +99,12 @@ class ObjectCounter(ModuleBase):
     def video_demo(self, video_file, out_root=None, is_show=False):
         if out_root and not os.path.exists(out_root):
             os.makedirs(out_root)
-        if video_file == "0":
-            video_file = 0
+        if video_file.isalnum():
+            video_file = int(video_file)
         frame_iter = self._video(video_file)
         fps, h, w = next(frame_iter)
+        video_writer = cv2.VideoWriter(os.path.join(out_root, os.path.basename(
+            str(video_file)).split(".")[0] + "_result.mp4"), cv2.VideoWriter_fourcc(*'XVID'), fps, (w, h))
         # self._video 之后生成 self.ofps, self.ow, self.oh
         run_count = 0
 
@@ -122,7 +127,7 @@ class ObjectCounter(ModuleBase):
 
             if outputs is not None and len(outputs) > 0:
                 self._visual(frame, outputs)  # BGR
-
+                video_writer.write(frame)
                 # add FPS information on output video
                 text_scale = max(1, frame.shape[1] // 1600)
                 cv2.putText(frame, 'frame: %d' % (run_count),
@@ -134,6 +139,8 @@ class ObjectCounter(ModuleBase):
                 if cv2.waitKey(1) == ord('q'):  # q to quit
                     cv2.destroyAllWindows()
                     break
+        video_writer.release()
+
 
     def image_demo(self, path, out_root=None, is_show=False, is_save=False):
         pass
