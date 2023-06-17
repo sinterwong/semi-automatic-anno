@@ -1,13 +1,15 @@
-from flask import Flask, jsonify, request
-from concurrent.futures import ThreadPoolExecutor, as_completed
-import uuid
-import tqdm
-import cv2
 import os
-from gevent import pywsgi
-from params import smoking_calling_gesture_params
-from module import GestureClassify
 import threading
+import uuid
+from concurrent.futures import ThreadPoolExecutor, as_completed
+
+import cv2
+import tqdm
+from flask import Flask, jsonify, request
+from gevent import pywsgi
+
+from module import GestureClassify
+from params import smoking_calling_gesture_params
 
 app = Flask(__name__)
 app.secret_key = "sinter"
@@ -49,7 +51,6 @@ def decode_video():
     out_root = request.json.get("out_root")
     interval = request.json.get("interval")
     times = request.json.get("times")
-    # region = request.json.get("region")
 
     if times is None:
         times = -1
@@ -72,13 +73,12 @@ def decode_video():
 
 @app.route("/generate_anno", methods=["POST"])
 def generate_anno():
-    
+
     algo_type = request.json.get("algo_type")
     video_paths = request.json.get("video_paths")
     image_paths = request.json.get("image_paths")
     out_root = request.json.get("out_root")
     # is_crop = request.json.get("is_crop")
-    # region = request.json.get("region")
     if video_paths:
         for p in video_paths:
             module_managers[algo_type].video_demo(p, out_root, is_save=True)

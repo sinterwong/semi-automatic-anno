@@ -68,7 +68,7 @@ class ObjectCounter(ModuleBase):
         for _, dr in enumerate(out):
             if dr[5] in self.attention_cls:
                 croped_image = img[int(dr[1]): int(dr[3]), int(
-                    dr[0]): int(dr[2]), :][:, :, ::-1]
+                    dr[0]): int(dr[2]), :]
                 if croped_image.shape[0] < 10 or croped_image.shape[1] < 10:
                     continue
                 feature = self._extractor.forward(croped_image)

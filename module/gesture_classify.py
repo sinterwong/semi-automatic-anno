@@ -1,8 +1,11 @@
 import os
-import numpy as np
-import cv2
-from inference import DetectorYolov5, Classifier
 import urllib
+
+import cv2
+import numpy as np
+
+from inference import Classifier, DetectorYolov5
+
 from .base import ModuleBase
 
 

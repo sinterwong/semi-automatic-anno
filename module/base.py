@@ -124,6 +124,7 @@ class ModuleBase(object):
         outs = []
         for _, p in tqdm(enumerate(data_paths), total=len(data_paths)):
             outs.append(self.single_image(p))
+        return outs
 
     def _video(self, video_file):
         cap = cv2.VideoCapture(video_file)
