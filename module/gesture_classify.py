@@ -30,6 +30,7 @@ class GestureClassify(ModuleBase):
         categorys = []
         objs = []
         for _, dr in enumerate(out):
+            dr = list(map(int, dr))
             hand_image = img[dr[1]: dr[3], dr[0]: dr[2], :][:, :, ::-1]
             if hand_image.shape[0] < 10 or hand_image.shape[1] < 10:
                 continue

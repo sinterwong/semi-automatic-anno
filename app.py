@@ -9,7 +9,7 @@ from flask import Flask, jsonify, request
 from gevent import pywsgi
 
 from module import GestureClassify
-from params import smoking_calling_gesture_params
+from params import gesture_params
 
 app = Flask(__name__)
 app.secret_key = "sinter"
@@ -45,7 +45,7 @@ def decode_video():
     # print(threading.current_thread().name)
     result = {
         "status": 200,
-        "msg": "video decode was done!"
+        "msg": "video decode has done!"
     }
     video_paths = request.json.get("video_paths")
     out_root = request.json.get("out_root")
@@ -86,10 +86,7 @@ def generate_anno():
     if image_paths:
         # print(type(image_paths))
         # print(type(image_paths[0]))
-        im_paths = []
         for p in image_paths:
-            im_paths += eval(p)
-        for p in im_paths:
             module_managers[algo_type].image_demo(p, out_root, is_save=True)
 
     result = {
@@ -102,7 +99,7 @@ def generate_anno():
 if __name__ == "__main__":
 
     module_managers = {
-        "smoking_calling": GestureClassify(smoking_calling_gesture_params)
+        "gesture": GestureClassify(gesture_params)
     }
     app.run(host="0.0.0.0", port=19777, debug=False, threaded=True)
 
