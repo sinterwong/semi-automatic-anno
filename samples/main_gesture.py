@@ -1,4 +1,4 @@
-from module import GestureClassify
+from module import DetectClassify
 import os
 import argparse
 
@@ -28,14 +28,14 @@ def main():
         "det_conf_thr": opt.det_conf_thr,
         "det_iou_thr": opt.det_iou_thr,
     }
-    gesture = GestureClassify(params)
+    detcls = DetectClassify(params)
 
     if opt.video_path:
-        gesture.video_demo(opt.video_path, opt.out_root,
+        detcls.video_demo(opt.video_path, opt.out_root,
                            is_show=True, is_save=True)
 
     if opt.im_path:
-        gesture.image_demo(opt.im_path, opt.out_root, is_show=True)
+        detcls.image_demo(opt.im_path, opt.out_root, is_show=True)
 
 
 if __name__ == "__main__":

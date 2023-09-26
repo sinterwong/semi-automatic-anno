@@ -13,7 +13,7 @@ url_anno = 'http://localhost:19777/generate_anno'
 url_vio = 'http://localhost:19777/decode_video'
 
 post_data_anno = {
-    'algo_type': "gesture",
+    'algo_type': "detcls",
     'video_paths': [],
     'image_paths': ["data/person/005.jpg", "data/person/004.jpg"],
     'out_root': "data/output0",
@@ -47,4 +47,3 @@ t2.start()
 t0.join()
 t1.join()
 t2.join()
-

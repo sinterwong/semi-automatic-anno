@@ -9,7 +9,7 @@ from inference import Classifier, DetectorYolov5
 from .base import ModuleBase
 
 
-class GestureClassify(ModuleBase):
+class DetectClassify(ModuleBase):
     def __init__(self, params: dict):
         super().__init__(params)
         # load detection model

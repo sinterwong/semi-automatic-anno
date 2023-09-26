@@ -8,7 +8,7 @@ import tqdm
 from flask import Flask, jsonify, request
 from gevent import pywsgi
 
-from module import GestureClassify
+from module import DetectClassify
 from params import gesture_params
 
 app = Flask(__name__)
@@ -99,7 +99,7 @@ def generate_anno():
 if __name__ == "__main__":
 
     module_managers = {
-        "gesture": GestureClassify(gesture_params)
+        "detcls": DetectClassify(gesture_params)
     }
     app.run(host="0.0.0.0", port=19777, debug=False, threaded=True)
 
